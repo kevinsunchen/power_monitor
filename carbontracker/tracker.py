@@ -5,7 +5,7 @@ import traceback
 import psutil
 import math
 from threading import Thread, Event
-
+import json
 import numpy as np
 
 from carbontracker import constants
@@ -119,7 +119,7 @@ class CarbonTrackerThread(Thread):
         self.start()
 
     def run(self):
-        """Thread's activity."""
+        """Thread's activity. Override class method to specify what the thread does"""
         try:
             self.begin()
             while self.running:
@@ -296,7 +296,7 @@ class CarbonTracker:
         except Exception as e:
             self._handle_error(e)
 
-    def epoch_end(self):
+    def epoch_end(self, save_dir=''):
         if self.deleted:
             return
 
@@ -304,7 +304,7 @@ class CarbonTracker:
             self.tracker.epoch_end()
 
             if self.epoch_counter == self.monitor_epochs:
-                self._output_actual()
+                self._output_actual(save_dir)
 
             if self.epoch_counter == self.epochs_before_pred:
                 self._output_pred()
@@ -372,7 +372,7 @@ class CarbonTracker:
 
         self.logger.output(output, verbose_level=1)
 
-    def _output_actual(self):
+    def _output_actual(self, save_dir):
         """Output actual usage so far."""
         energy_usages = self.tracker.total_energy_per_epoch()
         energy = energy_usages.sum()
@@ -384,6 +384,14 @@ class CarbonTracker:
         self._output_energy(
             f"Actual consumption for {self.epoch_counter} epoch(s):", time,
             energy, _co2eq, conversions)
+        if save_dir != '':
+            save_dict = {'duration (s)': time,
+                        'energy (kWh)': energy,
+                        'co2eq (g)': _co2eq,
+                        'car_emission': conversions}
+            # save to json file specified by the directory
+            with open(f'{save_dir}.json', 'w') as f:
+                json.dump(save_dict, f, indent=4)
 
     def _output_pred(self):
         """Output predicted usage for full training epochs."""

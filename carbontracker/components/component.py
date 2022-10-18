@@ -124,10 +124,13 @@ class Component:
 def create_components(components, pids, devices_by_pid):
     components = components.strip().replace(" ", "").lower()
     if components == "all":
-        return [
-            Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
-            for comp_name in component_names()
-        ]
+        comp_list = [Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid) 
+                    for comp_name in component_names()]
+        # return [
+        #     Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
+        #     for comp_name in component_names()
+        # ]
+        return comp_list
     else:
         return [
             Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
