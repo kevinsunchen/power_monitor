@@ -121,18 +121,44 @@ class Component:
         self.handler.shutdown()
 
 
-def create_components(components, pids, devices_by_pid):
+class ComponentManual(Component):
+    def energy_usage(self, epoch_times):
+        """Returns energy (kWh) used by component per epoch."""
+
+        # Ensure energy_usages and epoch_times have same length by
+        # copying latest measurement if it exists.
+        if len(epoch_times) != len(self.power_usages):
+            raise RuntimeError('recorded power usages do not match epochs')        
+        avg_power_usage = np.mean(self.power_usages[-1], axis=0)
+        time = epoch_times[-1]
+        energy_usage = np.multiply(avg_power_usage, time).sum()
+        # Convert from J to kWh.
+        if energy_usage != 0:
+            energy_usage /= 3600000
+        return  energy_usage
+
+def create_components(components, pids, devices_by_pid, manual=False):
     components = components.strip().replace(" ", "").lower()
     if components == "all":
-        comp_list = [Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid) 
-                    for comp_name in component_names()]
+        if manual:
+            comp_list = [ComponentManual(name=comp_name, pids=pids, devices_by_pid=devices_by_pid) 
+                        for comp_name in component_names()]    
+        else:
+            comp_list = [Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid) 
+                        for comp_name in component_names()]
         # return [
         #     Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
         #     for comp_name in component_names()
         # ]
         return comp_list
     else:
-        return [
-            Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
-            for comp_name in components.split(",")
-        ]
+        if manual:
+            return [
+                ComponentManual(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
+                for comp_name in components.split(",")
+            ]
+        else:
+            return [
+                Component(name=comp_name, pids=pids, devices_by_pid=devices_by_pid)
+                for comp_name in components.split(",")
+            ]
