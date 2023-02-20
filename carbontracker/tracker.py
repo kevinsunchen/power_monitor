@@ -579,3 +579,15 @@ class CarbonTrackerManual(CarbonTracker):
             # save to json file specified by the directory
             with open(f'{save_dir}.json', 'w') as f:
                 json.dump(save_dict, f, indent=4)
+        else:
+            return energy, _co2eq
+
+    def epoch_end(self, save_dir=''):
+        if self.deleted:
+            return
+
+        try:
+            self.tracker.epoch_end()
+            return self._output_actual(save_dir)
+        except Exception as e:
+            self._handle_error(e)
