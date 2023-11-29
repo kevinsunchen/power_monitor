@@ -57,8 +57,10 @@ def carbon_intensity(logger, time_dur=None):
 
     for fetcher in fetchers:
         if not fetcher.suitable(g_location):
+            logger.info(f"Fetcher {fetcher} not suitable for location {g_location}")
             continue
         try:
+            logger.info(f"Retrieving carbon intensity from fetcher {fetcher}")
             carbon_intensity = fetcher.carbon_intensity(g_location, time_dur)
             if not np.isnan(carbon_intensity.carbon_intensity):
                 carbon_intensity.success = True

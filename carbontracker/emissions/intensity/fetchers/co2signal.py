@@ -10,7 +10,8 @@ API_URL = "https://api.co2signal.com/v1/latest"
 
 class CO2Signal(IntensityFetcher):
     def suitable(self, g_location):
-        return AUTH_TOKEN is not None
+        return True
+        # return AUTH_TOKEN is not None
 
     def carbon_intensity(self, g_location, time_dur=None):
         carbon_intensity = intensity.CarbonIntensity(g_location=g_location)
@@ -56,11 +57,13 @@ class CO2Signal(IntensityFetcher):
 
         headers = {"auth-token": AUTH_TOKEN}
 
+        print(f"Request: {API_URL}, {params}")
         response = requests.get(API_URL, headers=headers, params=params)
         if not response.ok:
             raise exceptions.CarbonIntensityFetcherError(response.json())
+        print(f"Response: {response.json()}")
         carbon_intensity = response.json()["data"]["carbonIntensity"]
-        unit = response["units"]["carbonIntensity"]
+        unit = response.json()["units"]["carbonIntensity"]
         expected_unit = "gCO2eq/kWh"
         if unit != expected_unit:
             raise exceptions.UnitError(
