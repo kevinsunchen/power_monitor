@@ -10,6 +10,7 @@ from carbontracker import constants
 from carbontracker.emissions.intensity.fetchers import co2signal
 from carbontracker.emissions.intensity.fetchers import carbonintensitygb
 from carbontracker.emissions.intensity.fetchers import energidataservice
+from carbontracker.emissions.intensity.fetchers import watttime
 
 
 class CarbonIntensity:
@@ -39,7 +40,8 @@ def carbon_intensity(logger, time_dur=None):
     fetchers = [
         energidataservice.EnergiDataService(),
         carbonintensitygb.CarbonIntensityGB(),
-        co2signal.CO2Signal()
+        watttime.WattTime(),
+        co2signal.CO2Signal(),
     ]
 
     carbon_intensity = CarbonIntensity(default=True)

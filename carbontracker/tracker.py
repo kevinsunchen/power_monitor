@@ -16,6 +16,7 @@ from carbontracker.components import component
 from carbontracker.emissions.intensity import intensity
 from carbontracker.emissions.conversion import co2eq
 from carbontracker.emissions.intensity.fetchers import co2signal
+from carbontracker.emissions.intensity.fetchers import watttime
 
 
 class CarbonIntensityThread(Thread):
@@ -250,7 +251,11 @@ class CarbonTracker:
                  devices_by_pid=False,
                  log_dir=None,
                  verbose=1,
-                 decimal_precision=6):
+                 decimal_precision=6,
+                 api_keys=None):
+        if api_keys is not None:
+            self.set_api_keys(api_keys)
+
         self.epochs = epochs
         self.epochs_before_pred = (epochs if epochs_before_pred < 0 else
                                    epochs_before_pred)
@@ -337,6 +342,8 @@ class CarbonTracker:
             for name, key in api_dict.items():
                 if name.lower() == "co2signal":
                     co2signal.AUTH_TOKEN = key
+                elif name.lower() == "watttime":
+                    watttime.AUTH_TOKEN = key
                 else:
                     raise exceptions.FetcherNameError(
                         f"Invalid API name '{name}' given.")
