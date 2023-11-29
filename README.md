@@ -1,5 +1,7 @@
 # **Carbon Monitor**
 
+***In-progress project building off of power_monitor***
+
 This repository is forked and modified from [carbon tracker](https://github.com/lfwa/carbontracker)
 
 The power and carbon monitoring software is used for our SC'23 papers 
